@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div id="slider">
+    <vueper-slides autoplay>
+    <vueper-slide
+        v-for="(slide, i) in slides"
+        :key="i"
+        :image="slide.image"
+        :title="slide.title"
+        :content="slide.content"
+        :link="slide.link" />
+    <template v-slot:pause>
+        <i class="icon pause_circle_outline"></i>
+    </template>
+    </vueper-slides>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+
+    </script>
+    <script>
+
+        var productapp = new Vue({
+           el: '#slider',
+            components: { VueperSlides, VueperSlide },
+           data: () => ({
+              slides: [
+              {
+                title: '<h1 class="text-white">Photo by Max Rive</h1>',
+                content: '<h1 class="lead text-white">Photo by Max Rive</h1>',
+                // You can also provide a URL for the image.
+                image: 'https://i.pinimg.com/originals/2b/6c/69/2b6c69cf4d8a677bd239216fc061c982.jpg',
+                link: 'sdflkjsdfklj',
+              },
+              {
+                title: '<h1 class="text-white">Photo by Max Rive</h1>',
+                content: '<h1 class="lead text-white">Photo by Max Rive</h1>',
+                // You can also provide a URL for the image.
+                image: 'https://64.media.tumblr.com/4577bf6e7364614a19230b2d17e6d3e9/c55491bf2b524ce4-ff/s640x960/7c0543b3189537a126cf79825abf4c226573c83e.jpg'
+              },
+
+            ]
+            })
+       })
+    </script>
+{% endblock %}

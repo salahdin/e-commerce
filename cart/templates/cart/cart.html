@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div id="productapp">
+    <div class="site-section">
+      <div class="container">
+        <div class="row mb-5">
+          <form class="col-md-12" method="post">
+            <div class="site-blocks-table">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th class="product-thumbnail">Image</th>
+                    <th class="product-name">Product</th>
+                    <th class="product-price">Price</th>
+                    <th class="product-quantity">Quantity</th>
+                    <th class="product-total">Total</th>
+                    <th class="product-remove">Remove</th>
+                  </tr>
+                </thead>
+                <tbody>
+            {% if cart %}
+                  <tr v-for="product in products">
+                    <td class="product-thumbnail">
+                      <img src="images/cloth_1.jpg" alt="Image" class="img-fluid">
+                    </td>
+                    <td class="product-name">
+                      <h2 class="h5 text-black">[[ product.title ]]</h2>
+                    </td>
+                    <td>$[[ product.price ]]</td>
+                    <td>
+                      <div class="input-group mb-3" style="max-width: 120px;">
+                        <div class="input-group-prepend">
+                          <button v-on:click="product.quantity--" :disabled="!product.quantity ? 'true': undefined" class="btn btn-outline-primary js-btn-minus" type="button">&minus;</button>
+                        </div>
+                        <input type="text" class="form-control text-center" v-model="product.quantity" placeholder="" aria-label="Example text with button addon" aria-describedby="button-addon1">
+                        <div class="input-group-append">
+                          <button v-on:click="product.quantity++" class="btn btn-outline-primary js-btn-plus" type="button">&plus;</button>
+                        </div>
+                      </div>
+                    </td>
+                    <td>$[[product.quantity* product.price]]</td>
+                    <td><button @click.prevent = "removeFromCart( [[ product.id ]] )"  class="btn btn-primary height-auto btn-sm">X</button></td>
+                  </tr>
+                {% else %}
+                    <p>your cart is empty</p>
+                {% endif %}
+
+                </tbody>
+
+              </table>
+            </div>
+          </form>
+        </div>
+          <div class="col-md-6 pl-5">
+            <div class="row justify-content-end">
+              <div class="col-md-7">
+                <div class="row">
+                  <div class="col-md-12 text-right border-bottom mb-5">
+                    <h3 class="text-black h4 text-uppercase">Cart Totals</h3>
+                  </div>
+                </div>
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <span class="text-black">Subtotal</span>
+                  </div>
+                  <div class="col-md-6 text-right">
+                    <strong class="text-black">{{total}}</strong>
+                  </div>
+                </div>
+                <div class="row mb-5">
+                  <div class="col-md-6">
+                    <span class="text-black">Total</span>
+                  </div>
+                  <div class="col-md-6 text-right">
+                    <strong class="text-black">{{  total }}</strong>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-12">
+                    <button class="btn btn-primary btn-lg btn-block" onclick="window.location='checkout.html'">Proceed To Checkout</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+
+
+{% endblock %}
+{% block quant %}
+    {{ cart.get_total_cart_len }}
+{% endblock%}
+{% block scripts %}
+    <script>
+       var productapp = new Vue({
+           el: '#productapp',
+           delimiters: ['[[',']]'],
+
+           data(){
+               return {
+                   'counter':1,
+                   'products' : {{ productString|safe }}
+               }
+           },
+           mounted() {
+               console.log('products');
+               console.log(this.products);
+           },
+           methods: {
+               increment(){
+                    return this.counter++;
+               },
+               decrement(){
+                   if (this.counter > 0){
+                       return this.counter--;
+                   }
+                   else {
+                       return 0;
+                   }
+               },
+               removeFromCart(product_id){
+                   console.log('product_id: ',product_id);
+                   var data = {'product_id': product_id, 'update':false, 'quantity':1}
+                   fetch('/api/api_remove_from_cart/',{
+                       method: 'POST',
+                       headers:{
+                           'Content-Type':'application/json',
+                           'X-CSRFToken':'{{  csrf_token }}'
+                       },
+                       credentials: 'same-origin',
+                       body: JSON.stringify(data)
+
+                   }).then((response) => {
+                       console.log(response)
+                   }).catch(function (error) {
+                       console.log('error 2');
+
+                   })
+               }
+           }
+
+       })
+    </script>
+{% endblock %}
