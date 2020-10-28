@@ -4,7 +4,7 @@ from .api import api_add_to_cart,api_remove_from_cart
 
 app_name = 'core'
 urlpatterns = [
-    path('home/', landingpage, name="home"),
+    path('', landingpage, name="home"),
     path('product/<slug:slug>', ProductDetailView.as_view(), name="product_detail"),
     path('products/', ProductListView.as_view(), name="product_list"),
     path('api/api_add_to_cart/',api_add_to_cart,name = 'api_add_to_cart'),

@@ -2,6 +2,8 @@ from django.db import models
 from PIL import Image
 from io import BytesIO
 from django.core.files import File
+from django.core.files.base import ContentFile
+import os
 
 
 class Category(models.Model):
@@ -35,15 +37,38 @@ class Product(models.Model):
         return self.title
 
     def save(self, *args, **kwargs):
-        self.thumbnail = self.make_thumbnail(self.image)
-        super().save(*args, **kwargs)
+        if not self.make_thumbnail():
+            # set to a default thumbnail
+            raise Exception('Could not create thumbnail - is the file type valid?')
 
-    def make_thumbnail(self, image, size=(300, 200)):
-        img = Image.open(image)
-        img.convert('RGB')
-        img.thumbnail(size)
+        super(Product, self).save(*args, **kwargs)
 
-        thumb_io = BytesIO()
-        thumbnail = File(thumb_io, name=image.name)
+    def make_thumbnail(self):
 
-        return thumbnail
+        image = Image.open(self.image)
+        image.thumbnail((300, 200), Image.ANTIALIAS)
+
+        thumb_name, thumb_extension = os.path.splitext(self.image.name)
+        thumb_extension = thumb_extension.lower()
+
+        thumb_filename = thumb_name + '_thumb' + thumb_extension
+
+        if thumb_extension in ['.jpg', '.jpeg']:
+            FTYPE = 'JPEG'
+        elif thumb_extension == '.gif':
+            FTYPE = 'GIF'
+        elif thumb_extension == '.png':
+            FTYPE = 'PNG'
+        else:
+            return False    # Unrecognized file type
+
+        # Save thumbnail to in-memory file as StringIO
+        temp_thumb = BytesIO()
+        image.save(temp_thumb, FTYPE)
+        temp_thumb.seek(0)
+
+        # set save=False, otherwise it will run in an infinite loop
+        self.thumbnail.save(thumb_filename, ContentFile(temp_thumb.read()), save=False)
+        temp_thumb.close()
+
+        return True

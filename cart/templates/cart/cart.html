@@ -20,27 +20,30 @@
                 </thead>
                 <tbody>
             {% if cart %}
-                  <tr v-for="product in products">
-                    <td class="product-thumbnail">
-                      <img src="images/cloth_1.jpg" alt="Image" class="img-fluid">
-                    </td>
-                    <td class="product-name">
-                      <h2 class="h5 text-black">[[ product.title ]]</h2>
-                    </td>
-                    <td>$[[ product.price ]]</td>
-                    <td>
-                      <div class="input-group mb-3" style="max-width: 120px;">
-                        <div class="input-group-prepend">
-                          <button v-on:click="product.quantity--" :disabled="!product.quantity ? 'true': undefined" class="btn btn-outline-primary js-btn-minus" type="button">&minus;</button>
-                        </div>
-                        <input type="text" class="form-control text-center" v-model="product.quantity" placeholder="" aria-label="Example text with button addon" aria-describedby="button-addon1">
-                        <div class="input-group-append">
-                          <button v-on:click="product.quantity++" class="btn btn-outline-primary js-btn-plus" type="button">&plus;</button>
-                        </div>
-                      </div>
-                    </td>
-                    <td>$[[product.quantity* product.price]]</td>
-                    <td><button @click.prevent = "removeFromCart( [[ product.id ]] )"  class="btn btn-primary height-auto btn-sm">X</button></td>
+                  <tr v-for="(product,index) in products" v-if="product.show">
+                  <div>
+
+                        <td class="product-thumbnail">
+                           <img :src="product.image" v-bind:alt="pic" class="img-fluid">
+                        </td>
+                        <td class="product-name">
+                          <h2 class="h5 text-black">[[ product.title ]]</h2>
+                        </td>
+                        <td>$[[ product.price ]]</td>
+                        <td>
+                          <div class="input-group mb-3" style="max-width: 120px;">
+                            <div class="input-group-prepend">
+                              <button v-on:click="product.quantity--" :disabled="!product.quantity ? 'true': undefined" class="btn btn-outline-primary js-btn-minus" type="button">&minus;</button>
+                            </div>
+                            <input type="text" class="form-control text-center" v-model="product.quantity" placeholder="" aria-label="Example text with button addon" aria-describedby="button-addon1">
+                            <div class="input-group-append">
+                              <button v-on:click="product.quantity++" class="btn btn-outline-primary js-btn-plus" type="button">&plus;</button>
+                            </div>
+                          </div>
+                        </td>
+                        <td>$[[product.quantity* product.price]]</td>
+                        <td><button @click.prevent = "removeFromCart( [[ product.id ]], index )"  class="btn btn-primary height-auto btn-sm">X</button></td>
+                  </div>
                   </tr>
                 {% else %}
                     <p>your cart is empty</p>
@@ -122,8 +125,14 @@
                        return 0;
                    }
                },
-               removeFromCart(product_id){
+               notShow(index){
+                   console.log(this.products[index].show)
+                   this.products[index].show = false;
+                   console.log(this.products[index].show)
+               },
+               removeFromCart(product_id,index){
                    console.log('product_id: ',product_id);
+                   this.notShow(index)
                    var data = {'product_id': product_id, 'update':false, 'quantity':1}
                    fetch('/api/api_remove_from_cart/',{
                        method: 'POST',
@@ -138,7 +147,6 @@
                        console.log(response)
                    }).catch(function (error) {
                        console.log('error 2');
-
                    })
                }
            }
