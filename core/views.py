@@ -23,3 +23,7 @@ class ProductListView(ListView):
         products = Product.objects.all()
         context = {'products': products}
         return render(request,'core/product_list.html', context)
+
+
+def productlist(request):
+    return render(request,'core/product_list.html',{})
